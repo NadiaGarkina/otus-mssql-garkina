@@ -1,48 +1,48 @@
 /*
-Домашнее задание по курсу MS SQL Server Developer в OTUS.
+Р”РѕРјР°С€РЅРµРµ Р·Р°РґР°РЅРёРµ РїРѕ РєСѓСЂСЃСѓ MS SQL Server Developer РІ OTUS.
 
-Занятие "03 - Подзапросы, CTE, временные таблицы".
+Р—Р°РЅСЏС‚РёРµ "03 - РџРѕРґР·Р°РїСЂРѕСЃС‹, CTE, РІСЂРµРјРµРЅРЅС‹Рµ С‚Р°Р±Р»РёС†С‹".
 
-Задания выполняются с использованием базы данных WideWorldImporters.
+Р—Р°РґР°РЅРёСЏ РІС‹РїРѕР»РЅСЏСЋС‚СЃСЏ СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј Р±Р°Р·С‹ РґР°РЅРЅС‹С… WideWorldImporters.
 
-Бэкап БД можно скачать отсюда:
+Р‘СЌРєР°Рї Р‘Р” РјРѕР¶РЅРѕ СЃРєР°С‡Р°С‚СЊ РѕС‚СЃСЋРґР°:
 https://github.com/Microsoft/sql-server-samples/releases/tag/wide-world-importers-v1.0
-Нужен WideWorldImporters-Full.bak
+РќСѓР¶РµРЅ WideWorldImporters-Full.bak
 
-Описание WideWorldImporters от Microsoft:
+РћРїРёСЃР°РЅРёРµ WideWorldImporters РѕС‚ Microsoft:
 * https://docs.microsoft.com/ru-ru/sql/samples/wide-world-importers-what-is
 * https://docs.microsoft.com/ru-ru/sql/samples/wide-world-importers-oltp-database-catalog
 */
 
 -- ---------------------------------------------------------------------------
--- Задание - написать выборки для получения указанных ниже данных.
--- Для всех заданий, где возможно, сделайте два варианта запросов:
---  1) через вложенный запрос
---  2) через WITH (для производных таблиц)
+-- Р—Р°РґР°РЅРёРµ - РЅР°РїРёСЃР°С‚СЊ РІС‹Р±РѕСЂРєРё РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СѓРєР°Р·Р°РЅРЅС‹С… РЅРёР¶Рµ РґР°РЅРЅС‹С….
+-- Р”Р»СЏ РІСЃРµС… Р·Р°РґР°РЅРёР№, РіРґРµ РІРѕР·РјРѕР¶РЅРѕ, СЃРґРµР»Р°Р№С‚Рµ РґРІР° РІР°СЂРёР°РЅС‚Р° Р·Р°РїСЂРѕСЃРѕРІ:
+--  1) С‡РµСЂРµР· РІР»РѕР¶РµРЅРЅС‹Р№ Р·Р°РїСЂРѕСЃ
+--  2) С‡РµСЂРµР· WITH (РґР»СЏ РїСЂРѕРёР·РІРѕРґРЅС‹С… С‚Р°Р±Р»РёС†)
 -- ---------------------------------------------------------------------------
 
 USE WideWorldImporters
 
 /*
-1. Выберите сотрудников (Application.People), которые являются продажниками (IsSalesPerson), 
-и не сделали ни одной продажи 04 июля 2015 года. 
-Вывести ИД сотрудника и его полное имя. 
-Продажи смотреть в таблице Sales.Invoices.
+1. Р’С‹Р±РµСЂРёС‚Рµ СЃРѕС‚СЂСѓРґРЅРёРєРѕРІ (Application.People), РєРѕС‚РѕСЂС‹Рµ СЏРІР»СЏСЋС‚СЃСЏ РїСЂРѕРґР°Р¶РЅРёРєР°РјРё (IsSalesPerson), 
+Рё РЅРµ СЃРґРµР»Р°Р»Рё РЅРё РѕРґРЅРѕР№ РїСЂРѕРґР°Р¶Рё 04 РёСЋР»СЏ 2015 РіРѕРґР°. 
+Р’С‹РІРµСЃС‚Рё РР” СЃРѕС‚СЂСѓРґРЅРёРєР° Рё РµРіРѕ РїРѕР»РЅРѕРµ РёРјСЏ. 
+РџСЂРѕРґР°Р¶Рё СЃРјРѕС‚СЂРµС‚СЊ РІ С‚Р°Р±Р»РёС†Рµ Sales.Invoices.
 */
 
---- Вариант 1
+--- Р’Р°СЂРёР°РЅС‚ 1
 select distinct p.PersonID, p.FullName
 from [Application].People p
 inner join Sales.Invoices i on i.SalespersonPersonID=p.PersonID
 where i.SalespersonPersonID not in (select distinct i.SalespersonPersonID from Sales.Invoices i where i.InvoiceDate= '2015-07-04')
 
---- Вариант 2
+--- Р’Р°СЂРёР°РЅС‚ 2
 select p.PersonID, p.FullName
 from [Application].People p
 WHERE p.PersonID in (select distinct i.SalespersonPersonID from Sales.Invoices i)
 and p.PersonID not in (select distinct i.SalespersonPersonID from Sales.Invoices i where i.InvoiceDate= '2015-07-04')
 
---- Вариант 3
+--- Р’Р°СЂРёР°РЅС‚ 3
 select distinct
   (SELECT p.PersonID
 FROM [Application].People p
@@ -51,11 +51,11 @@ WHERE p.PersonID = i.SalespersonPersonID
 , (SELECT p.FullName
 FROM [Application].People p
 WHERE p.PersonID = i.SalespersonPersonID
-) AS 'Имя продавца'
+) AS 'РРјСЏ РїСЂРѕРґР°РІС†Р°'
 from Sales.Invoices i
 where i.SalespersonPersonID not in (select distinct i.SalespersonPersonID from Sales.Invoices i where i.InvoiceDate= '2015-07-04')
 
---- Вариант 4
+--- Р’Р°СЂРёР°РЅС‚ 4
 WITH a as (
 select distinct p.PersonID, p.FullName
 from [Application].People p
@@ -65,15 +65,15 @@ select a.PersonID, a.FullName from a
 where a.PersonID not in (select distinct i.SalespersonPersonID from Sales.Invoices i where i.InvoiceDate= '2015-07-04')
 
 /*
-2. Выберите товары с минимальной ценой (подзапросом). Сделайте два варианта подзапроса. 
-Вывести: ИД товара, наименование товара, цена.
+2. Р’С‹Р±РµСЂРёС‚Рµ С‚РѕРІР°СЂС‹ СЃ РјРёРЅРёРјР°Р»СЊРЅРѕР№ С†РµРЅРѕР№ (РїРѕРґР·Р°РїСЂРѕСЃРѕРј). РЎРґРµР»Р°Р№С‚Рµ РґРІР° РІР°СЂРёР°РЅС‚Р° РїРѕРґР·Р°РїСЂРѕСЃР°. 
+Р’С‹РІРµСЃС‚Рё: РР” С‚РѕРІР°СЂР°, РЅР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР°, С†РµРЅР°.
 */
 
---- Вариант 1
+--- Р’Р°СЂРёР°РЅС‚ 1
 select distinct o.StockItemID, o.Description, o.UnitPrice from Sales.OrderLines o
 where o.UnitPrice = (select min(UnitPrice) from Sales.OrderLines)
 
---- Вариант 2
+--- Р’Р°СЂРёР°РЅС‚ 2
 with b as (
 select distinct o.StockItemID, o.Description, o.UnitPrice 
 ,(select min(UnitPrice) from Sales.OrderLines) as unitmin
@@ -84,15 +84,15 @@ from b
 where b.UnitPrice=b.unitmin
 
 /*
-3. Выберите информацию по клиентам, которые перевели компании пять максимальных платежей 
-из Sales.CustomerTransactions. 
-Представьте несколько способов (в том числе с CTE). 
+3. Р’С‹Р±РµСЂРёС‚Рµ РёРЅС„РѕСЂРјР°С†РёСЋ РїРѕ РєР»РёРµРЅС‚Р°Рј, РєРѕС‚РѕСЂС‹Рµ РїРµСЂРµРІРµР»Рё РєРѕРјРїР°РЅРёРё РїСЏС‚СЊ РјР°РєСЃРёРјР°Р»СЊРЅС‹С… РїР»Р°С‚РµР¶РµР№ 
+РёР· Sales.CustomerTransactions. 
+РџСЂРµРґСЃС‚Р°РІСЊС‚Рµ РЅРµСЃРєРѕР»СЊРєРѕ СЃРїРѕСЃРѕР±РѕРІ (РІ С‚РѕРј С‡РёСЃР»Рµ СЃ CTE). 
 */
 
---- Вариант 1
+--- Р’Р°СЂРёР°РЅС‚ 1
 select top (5) with ties CustomerID, CustomerTransactionID, TransactionAmount from Sales.CustomerTransactions
 order by TransactionAmount desc
---- Вариант 2
+--- Р’Р°СЂРёР°РЅС‚ 2
 with b as (
 select rn = ROW_NUMBER() over (order by TransactionAmount desc), CustomerID, CustomerTransactionID, TransactionAmount from Sales.CustomerTransactions
 )
@@ -100,11 +100,11 @@ select CustomerID, CustomerTransactionID, TransactionAmount from b
 where rn<=5
 
 /*
-4. Выберите города (ид и название), в которые были доставлены товары, 
-входящие в тройку самых дорогих товаров, а также имя сотрудника, 
-который осуществлял упаковку заказов (PackedByPersonID).
+4. Р’С‹Р±РµСЂРёС‚Рµ РіРѕСЂРѕРґР° (РёРґ Рё РЅР°Р·РІР°РЅРёРµ), РІ РєРѕС‚РѕСЂС‹Рµ Р±С‹Р»Рё РґРѕСЃС‚Р°РІР»РµРЅС‹ С‚РѕРІР°СЂС‹, 
+РІС…РѕРґСЏС‰РёРµ РІ С‚СЂРѕР№РєСѓ СЃР°РјС‹С… РґРѕСЂРѕРіРёС… С‚РѕРІР°СЂРѕРІ, Р° С‚Р°РєР¶Рµ РёРјСЏ СЃРѕС‚СЂСѓРґРЅРёРєР°, 
+РєРѕС‚РѕСЂС‹Р№ РѕСЃСѓС‰РµСЃС‚РІР»СЏР» СѓРїР°РєРѕРІРєСѓ Р·Р°РєР°Р·РѕРІ (PackedByPersonID).
 */
---- Вариант 1
+--- Р’Р°СЂРёР°РЅС‚ 1
 
 select distinct d.[DeliveryCityID], ac.CityName, c.[PackedByPersonID] 
 from 
@@ -116,7 +116,7 @@ inner join Sales.Invoices   c on c.OrderID=b.OrderID
 inner join Sales.Customers  d on d.CustomerID=c.CustomerID
 inner join [Application].[Cities] ac on ac.CityID=d.DeliveryCityID
 
---- Вариант 2
+--- Р’Р°СЂРёР°РЅС‚ 2
 with a as
 (select distinct top (3) with ties StockItemID, UnitPrice
 from Sales.OrderLines
@@ -129,18 +129,18 @@ inner join Sales.Customers  d on d.CustomerID=c.CustomerID
 inner join [Application].[Cities] ac on ac.CityID=d.DeliveryCityID
 
 -- ---------------------------------------------------------------------------
--- Опциональное задание
+-- РћРїС†РёРѕРЅР°Р»СЊРЅРѕРµ Р·Р°РґР°РЅРёРµ
 -- ---------------------------------------------------------------------------
--- Можно двигаться как в сторону улучшения читабельности запроса, 
--- так и в сторону упрощения плана\ускорения. 
--- Сравнить производительность запросов можно через SET STATISTICS IO, TIME ON. 
--- Если знакомы с планами запросов, то используйте их (тогда к решению также приложите планы). 
--- Напишите ваши рассуждения по поводу оптимизации. 
+-- РњРѕР¶РЅРѕ РґРІРёРіР°С‚СЊСЃСЏ РєР°Рє РІ СЃС‚РѕСЂРѕРЅСѓ СѓР»СѓС‡С€РµРЅРёСЏ С‡РёС‚Р°Р±РµР»СЊРЅРѕСЃС‚Рё Р·Р°РїСЂРѕСЃР°, 
+-- С‚Р°Рє Рё РІ СЃС‚РѕСЂРѕРЅСѓ СѓРїСЂРѕС‰РµРЅРёСЏ РїР»Р°РЅР°\СѓСЃРєРѕСЂРµРЅРёСЏ. 
+-- РЎСЂР°РІРЅРёС‚СЊ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚СЊ Р·Р°РїСЂРѕСЃРѕРІ РјРѕР¶РЅРѕ С‡РµСЂРµР· SET STATISTICS IO, TIME ON. 
+-- Р•СЃР»Рё Р·РЅР°РєРѕРјС‹ СЃ РїР»Р°РЅР°РјРё Р·Р°РїСЂРѕСЃРѕРІ, С‚Рѕ РёСЃРїРѕР»СЊР·СѓР№С‚Рµ РёС… (С‚РѕРіРґР° Рє СЂРµС€РµРЅРёСЋ С‚Р°РєР¶Рµ РїСЂРёР»РѕР¶РёС‚Рµ РїР»Р°РЅС‹). 
+-- РќР°РїРёС€РёС‚Рµ РІР°С€Рё СЂР°СЃСЃСѓР¶РґРµРЅРёСЏ РїРѕ РїРѕРІРѕРґСѓ РѕРїС‚РёРјРёР·Р°С†РёРё. 
 
--- 5. Объясните, что делает и оптимизируйте запрос
+-- 5. РћР±СЉСЏСЃРЅРёС‚Рµ, С‡С‚Рѕ РґРµР»Р°РµС‚ Рё РѕРїС‚РёРјРёР·РёСЂСѓР№С‚Рµ Р·Р°РїСЂРѕСЃ
 
---- Соединение по Номеру чека выборок из таблиц Sales.Invoices и Sales.InvoiceLines
---- Выводятся чеки с общей суммой свыше 27000
---- добавяляется имя продавца из таблицы Application.People (то есть сотрудник является продавцом)
---- общая сумма по избранным товарам, по которым завершена комплектация и заказ уже в чеке (то есть исполнен)
---- сортировка по убыванию по Общей сумме 
+--- РЎРѕРµРґРёРЅРµРЅРёРµ РїРѕ РќРѕРјРµСЂСѓ С‡РµРєР° РІС‹Р±РѕСЂРѕРє РёР· С‚Р°Р±Р»РёС† Sales.Invoices Рё Sales.InvoiceLines
+--- Р’С‹РІРѕРґСЏС‚СЃСЏ С‡РµРєРё СЃ РѕР±С‰РµР№ СЃСѓРјРјРѕР№ СЃРІС‹С€Рµ 27000
+--- РґРѕР±Р°РІСЏР»СЏРµС‚СЃСЏ РёРјСЏ РїСЂРѕРґР°РІС†Р° РёР· С‚Р°Р±Р»РёС†С‹ Application.People (С‚Рѕ РµСЃС‚СЊ СЃРѕС‚СЂСѓРґРЅРёРє СЏРІР»СЏРµС‚СЃСЏ РїСЂРѕРґР°РІС†РѕРј)
+--- РѕР±С‰Р°СЏ СЃСѓРјРјР° РїРѕ РёР·Р±СЂР°РЅРЅС‹Рј С‚РѕРІР°СЂР°Рј, РїРѕ РєРѕС‚РѕСЂС‹Рј Р·Р°РІРµСЂС€РµРЅР° РєРѕРјРїР»РµРєС‚Р°С†РёСЏ Рё Р·Р°РєР°Р· СѓР¶Рµ РІ С‡РµРєРµ (С‚Рѕ РµСЃС‚СЊ РёСЃРїРѕР»РЅРµРЅ)
+--- СЃРѕСЂС‚РёСЂРѕРІРєР° РїРѕ СѓР±С‹РІР°РЅРёСЋ РїРѕ РћР±С‰РµР№ СЃСѓРјРјРµ 

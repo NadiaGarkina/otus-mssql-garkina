@@ -108,15 +108,21 @@ UNPIVOT (Code for CodeType in (IsoAlpha3Code, IsoNumericCode)) as unpt
 В результатах должно быть ид клиента, его название, ид товара, цена, дата покупки.
 */
 
-select c.CustomerID, c.CustomerName, t.StockItemID, t.StockItemName, t.UnitPrice, t.InvoiceDate
+select c.CustomerID, c.CustomerName, t.StockItemID, t.StockItemName, t.UnitPrice
+,	(
+	select max(i1.InvoiceDate)  
+	from Sales.InvoiceLines as il1
+	inner join Sales.Invoices as i1 on i1.InvoiceID=il1.InvoiceID
+	where il1.StockItemID=t.StockItemID and i1.CustomerID=c.CustomerID
+	) as 'IDate'
 from Sales.Customers c
 CROSS APPLY
 (
-    select distinct top 2 sil.StockItemID, si.StockItemName, si.UnitPrice, i.InvoiceDate  
+    select distinct top 2 sil.StockItemID, si.StockItemName, si.UnitPrice  
     from Sales.InvoiceLines sil
     inner join Sales.Invoices i on i.InvoiceID = sil.InvoiceID
     inner join Warehouse.StockItems si on si.StockItemID = sil.StockItemID
 	where i.CustomerID=c.CustomerID
+	--and i.CustomerID=832
 	order by si.UnitPrice desc
 ) as t
-

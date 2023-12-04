@@ -39,15 +39,19 @@ USE WideWorldImporters
 */
 SET STATISTICS IO ON;  
 GO  
-select [InvoiceID], [ConfirmedReceivedBy], [InvoiceDate], OL.UnitPrice*OL.PickedQuantity as 'Сумма продаж'
+select si.[InvoiceID], c.[CustomerName], si.[InvoiceDate]
+,		(select sum(o.Quantity*o.UnitPrice) 
+		from Sales.InvoiceLines o
+		where o.InvoiceID=si.InvoiceID) as 'Сумма продаж'
 		,(select  sum(OL1.UnitPrice*OL1.PickedQuantity)			  
-		from [Sales].[Invoices] si1
-		inner join sales.OrderLines OL1 on OL1.OrderID=si1.OrderID
+		from sales.OrderLines OL1
+		inner join Sales.Invoices si1 on OL1.OrderID=si1.OrderID
 		where DATETRUNC(month, si1.[InvoiceDate])<=DATETRUNC(month, si.[InvoiceDate]) 
 		and si1.[InvoiceDate]>='2015-01-01') as  'Сумма продаж накопительно помесячно'
 from [Sales].[Invoices] si
+inner join Sales.Customers c on c.CustomerID = si.CustomerID
 inner join sales.OrderLines OL on OL.OrderID=si.OrderID
-where si.[InvoiceDate]>='2015-01-01' 
+where si.[InvoiceDate]>='2015-01-01'
 order by [InvoiceID]
 GO  
 SET STATISTICS IO OFF;  
@@ -56,15 +60,16 @@ GO
 2. Сделайте расчет суммы нарастающим итогом в предыдущем запросе с помощью оконной функции.
    Сравните производительность запросов 1 и 2 с помощью set statistics time, io on
 */
-
 SET STATISTICS IO ON;  
 GO  
-select [InvoiceID], [ConfirmedReceivedBy], [InvoiceDate], OL.UnitPrice*OL.PickedQuantity as 'Сумма продаж'
-,sum(OL.UnitPrice*OL.PickedQuantity) over(order by DATETRUNC(month, si.[InvoiceDate]))   as  'Сумма продаж накопительно помесячно'
+select si.[InvoiceID], c.[CustomerName], si.[InvoiceDate]
+, SUM(il.Quantity*il.UnitPrice) OVER (PARTITION BY si.InvoiceID) as 'Сумма продаж'
+, SUM(il.Quantity*il.UnitPrice) OVER (order by DATETRUNC(month, si.[InvoiceDate])) as  'Сумма продаж накопительно помесячно'
 from [Sales].[Invoices] si
-inner join sales.OrderLines OL on OL.OrderID=si.OrderID
+inner join Sales.Customers c on c.CustomerID = si.CustomerID
+inner join Sales.InvoiceLines il on il.InvoiceID=si.InvoiceID
 where si.[InvoiceDate]>='2015-01-01' 
-order by [InvoiceID] 
+order by [InvoiceID]
 GO  
 SET STATISTICS IO OFF;  
 GO  
@@ -135,17 +140,23 @@ where ROW_NUMBER = 1
 В результатах должно быть ид клиента, его название, ид товара, цена, дата покупки.
 */
 
-select c.CustomerID, c.CustomerName, t.StockItemID, t.StockItemName, t.UnitPrice, t.InvoiceDate
+select distinct c.CustomerID, c.CustomerName, t.StockItemID, t.StockItemName, t.UnitPrice 
+,(
+	select max(i1.InvoiceDate)  
+	from Sales.InvoiceLines as il1
+	inner join Sales.Invoices as i1 on i1.InvoiceID=il1.InvoiceID
+	where il1.StockItemID=t.StockItemID and i1.CustomerID=c.CustomerID
+	) as 'IDate'
 from
 (
-    select i.CustomerID, sil.StockItemID, si.StockItemName, si.UnitPrice,  i.InvoiceDate, 
-    ROW_NUMBER() OVER(PARTITION BY i.CustomerID ORDER BY si.UnitPrice desc) as ROW_NUMBER
+    select distinct i.CustomerID, sil.StockItemID, si.StockItemName, si.UnitPrice, i.InvoiceDate
+    , DENSE_RANK() OVER(PARTITION BY i.CustomerID ORDER BY si.UnitPrice desc) as DENSE_RANK
     from Sales.InvoiceLines sil
     inner join Sales.Invoices i on i.InvoiceID = sil.InvoiceID
     inner join Warehouse.StockItems si on si.StockItemID = sil.StockItemID
 ) as t
 inner join Sales.Customers c on t.CustomerID = c.CustomerID
-where t.ROW_NUMBER<=2
+where t.DENSE_RANK<=2
 
 
 Опционально можете для каждого запроса без оконных функций сделать вариант запросов с оконными функциями и сравнить их производительность. 

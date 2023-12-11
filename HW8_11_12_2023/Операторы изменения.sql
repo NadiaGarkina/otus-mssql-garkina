@@ -1,10 +1,10 @@
 /*
-Описание/Пошаговая инструкция выполнения домашнего задания:
-Довставлять в базу пять записей используя insert в таблицу Customers или Suppliers
-Удалите одну запись из Customers, которая была вами добавлена
-Изменить одну запись, из добавленных через UPDATE
-Написать MERGE, который вставит вставит запись в клиенты, если ее там нет, и изменит если она уже есть
-Напишите запрос, который выгрузит данные через bcp out и загрузить через bulk insert */
+СњРїРёСЃР°РЅРёРµ/С•РѕС€Р°РіРѕРІР°В¤ РёРЅСЃС‚СЂСѓРєС†РёВ¤ РІС‹РїРѕР»РЅРµРЅРёВ¤ РґРѕРјР°С€РЅРµРіРѕ Р·Р°РґР°РЅРёВ¤:
+Ж’РѕРІСЃС‚Р°РІР»В¤С‚СЊ РІ Р±Р°Р·Сѓ РїВ¤С‚СЊ Р·Р°РїРёСЃРµР№ РёСЃРїРѕР»СЊР·СѓВ¤ insert РІ С‚Р°Р±Р»РёС†Сѓ Customers РёР»Рё Suppliers
+вЂќРґР°Р»РёС‚Рµ РѕРґРЅСѓ Р·Р°РїРёСЃСЊ РёР· Customers, РєРѕС‚РѕСЂР°В¤ Р±С‹Р»Р° РІР°РјРё РґРѕР±Р°РІР»РµРЅР°
+В»Р·РјРµРЅРёС‚СЊ РѕРґРЅСѓ Р·Р°РїРёСЃСЊ, РёР· РґРѕР±Р°РІР»РµРЅРЅС‹С… С‡РµСЂРµР· UPDATE
+РЊР°РїРёСЃР°С‚СЊ MERGE, РєРѕС‚РѕСЂС‹Р№ РІСЃС‚Р°РІРёС‚ РІСЃС‚Р°РІРёС‚ Р·Р°РїРёСЃСЊ РІ РєР»РёРµРЅС‚С‹, РµСЃР»Рё РµРµ С‚Р°Рј РЅРµС‚, Рё РёР·РјРµРЅРёС‚ РµСЃР»Рё РѕРЅР° СѓР¶Рµ РµСЃС‚СЊ
+РЊР°РїРёС€РёС‚Рµ Р·Р°РїСЂРѕСЃ, РєРѕС‚РѕСЂС‹Р№ РІС‹РіСЂСѓР·РёС‚ РґР°РЅРЅС‹Рµ С‡РµСЂРµР· bcp out Рё Р·Р°РіСЂСѓР·РёС‚СЊ С‡РµСЂРµР· bulk insert */
 
 /*
 drop table if exists Sales.Customers_Copy
@@ -16,7 +16,7 @@ select * from Sales.Customers_Copy
 select * into Sales.Customers_Copy_1
 from Sales.Customers_Copy */
 
---- Добавляем значения в таблицу
+--- Ж’РѕР±Р°РІР»В¤РµРј Р·РЅР°С‡РµРЅРёВ¤ РІ С‚Р°Р±Р»РёС†Сѓ
 insert into Sales.Customers_Copy
 (CustomerID,CustomerName,BillToCustomerID,CustomerCategoryID
 --,BuyingGroupID
@@ -45,17 +45,17 @@ SELECT @@ROWCOUNT
 
 --select * from Sales.Customers_Copy order by CustomerID desc
 
---- Удаляем одно значение из таблицы
+--- вЂќРґР°Р»В¤РµРј РѕРґРЅРѕ Р·РЅР°С‡РµРЅРёРµ РёР· С‚Р°Р±Р»РёС†С‹
 delete from Sales.Customers_Copy
 where CustomerID=1094
 
---- Изменяем одно значение в таблице
+--- В»Р·РјРµРЅВ¤РµРј РѕРґРЅРѕ Р·РЅР°С‡РµРЅРёРµ РІ С‚Р°Р±Р»РёС†Рµ
 UPDATE Sales.Customers_Copy
 SET CreditLimit = 
     (SELECT max (CreditLimit) FROM Sales.Customers_Copy)
 WHERE CustomerID=1093
 
---- Merge (который вставит вставит запись в клиенты, если ее там нет, и изменит если она уже есть)
+--- Merge (РєРѕС‚РѕСЂС‹Р№ РІСЃС‚Р°РІРёС‚ РІСЃС‚Р°РІРёС‚ Р·Р°РїРёСЃСЊ РІ РєР»РёРµРЅС‚С‹, РµСЃР»Рё РµРµ С‚Р°Рј РЅРµС‚, Рё РёР·РјРµРЅРёС‚ РµСЃР»Рё РѕРЅР° СѓР¶Рµ РµСЃС‚СЊ)
 --select * from Sales.Customers_Copy order by CustomerID desc
 delete from Sales.Customers_Copy where CustomerID=1090
 UPDATE Sales.Customers_Copy set CustomerName='Anand Mudaliyar' where CustomerID=1093

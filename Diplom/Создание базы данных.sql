@@ -1,3 +1,11 @@
+/*
+--- Используем такую конструкцию для удаления базы
+USE master; 
+GO 
+IF DB_ID (N'Bank_Credits_new') IS NOT NULL 
+	DROP DATABASE Bank_Credits_new; 
+GO */
+
 --- Создаем базу данных с банковскими кредитами
 CREATE DATABASE Bank_Credits_new;
 GO
@@ -10,7 +18,7 @@ GO
 -- то есть у кредита один клиент
 -- но у клиента много кредитов
 CREATE TABLE [Credits] (
-    [Loan_ID] int  NOT NULL ,
+    [Loan_ID] int  NOT NULL identity,
     [Date] date  NOT NULL ,
     [Client_ID] int  NOT NULL ,
     [Issue_Date] date  NOT NULL ,
@@ -80,7 +88,8 @@ CREATE TABLE [Payments] (
 CREATE TABLE [Credits_delay] (
     [Loan_ID] int  NOT NULL ,
     [Date_begin] date  NOT NULL ,
-    [Date_end] date  NOT NULL 
+    [Date_end] date  NOT NULL ,
+	CONSTRAINT [PK_Credits_delay] PRIMARY KEY ([Loan_ID],[Date_begin],[Date_end])
 )
 
 --- Создаем таблицу с реструктуризациями по кредитам
@@ -88,7 +97,8 @@ CREATE TABLE [Credits_delay] (
 CREATE TABLE [Credits_restructs] (
     [Loan_ID] int  NOT NULL ,
     [Date_rest] date  NOT NULL ,
-    [Rest_type] nvarchar(200)  NOT NULL 
+    [Rest_type] nvarchar(200)  NOT NULL ,
+	CONSTRAINT [PK_Credits_restructs] PRIMARY KEY ([Loan_ID],[Date_rest],[Rest_type])
 )
 
 --- Добавляем ограничения по таблицам

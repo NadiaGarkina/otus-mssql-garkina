@@ -35,7 +35,7 @@ CREATE TABLE [Credits] (
 --- Создаем таблицу с клиентами
 -- у клиента может быть несколько кредитов
 CREATE TABLE [Clients] (
-    [Client_ID] int  NOT NULL ,
+    [Client_ID] int  NOT NULL  identity,
     [Client_Name] nvarchar(200)  NOT NULL ,
     [Date_of_birth] date  NOT NULL ,
     [Address] nvarchar(200)  NOT NULL ,
@@ -58,7 +58,7 @@ CREATE TABLE [Clients_bankrupt] (
 -- у кредита может быть один продукт
 -- но в продукте много кредитов
 CREATE TABLE [Products] (
-    [Product_ID] int  NOT NULL ,
+    [Product_ID] int  NOT NULL identity ,
     [Product] nvarchar(200)  NOT NULL ,
     [Segment] nvarchar(200)  NOT NULL ,
     CONSTRAINT [PK_Products] PRIMARY KEY CLUSTERED (
@@ -72,7 +72,7 @@ CREATE TABLE [Products] (
 --- Создаем таблицу с платежами
 -- у кредита может быть много платежей по кредитам
 CREATE TABLE [Payments] (
-    [Fakt_ID] int  NOT NULL ,
+    [Fakt_ID] int  NOT NULL identity ,
     [Loan_ID] int  NOT NULL ,
     [Oper_kod] int  NOT NULL ,
     [Oper_name] nvarchar(200)  NOT NULL ,

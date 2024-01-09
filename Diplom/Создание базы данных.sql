@@ -138,3 +138,6 @@ CHECK ([Issue_Date] >='2012-01-01');
 
 --- Создаем индексы
 create index idx_prod on [Credits]  ([Product_ID]);
+create COLUMNSTORE index idx_pay on [Payments] ([Oper_date]);
+create COLUMNSTORE index idx_delay on [Credits_delay] ([Loan_ID]);
+create index idx_rest on [Credits_restructs] ([Date_rest],[Loan_ID]);

@@ -1,22 +1,22 @@
 /*
---- РСЃРїРѕР»СЊР·СѓРµРј С‚Р°РєСѓСЋ РєРѕРЅСЃС‚СЂСѓРєС†РёСЋ РґР»СЏ СѓРґР°Р»РµРЅРёСЏ Р±Р°Р·С‹
+--- Используем такую конструкцию для удаления базы
 USE master; 
 GO 
 IF DB_ID (N'Bank_Credits_new') IS NOT NULL 
 	DROP DATABASE Bank_Credits_new; 
 GO */
 
---- РЎРѕР·РґР°РµРј Р±Р°Р·Сѓ РґР°РЅРЅС‹С… СЃ Р±Р°РЅРєРѕРІСЃРєРёРјРё РєСЂРµРґРёС‚Р°РјРё
+--- Создаем базу данных с банковскими кредитами
 CREATE DATABASE Bank_Credits_new;
 GO
 
 use Bank_Credits_new;
 GO
 
---- РЎРѕР·РґР°РµРј С‚Р°Р±Р»РёС†Сѓ СЃ РєСЂРµРґРёС‚Р°РјРё
--- РІ Р±Р°РЅРєРµ РІС‹РґР°СЋС‚СЃСЏ РєСЂРµРґРёС‚С‹ РєР»РёРµРЅС‚Р°Рј
--- С‚Рѕ РµСЃС‚СЊ Сѓ РєСЂРµРґРёС‚Р° РѕРґРёРЅ РєР»РёРµРЅС‚
--- РЅРѕ Сѓ РєР»РёРµРЅС‚Р° РјРЅРѕРіРѕ РєСЂРµРґРёС‚РѕРІ
+--- Создаем таблицу с кредитами
+-- в банке выдаются кредиты клиентам
+-- то есть у кредита один клиент
+-- но у клиента много кредитов
 CREATE TABLE [Credits] (
     [Loan_ID] int  NOT NULL identity,
     [Date] date  NOT NULL ,
@@ -32,8 +32,8 @@ CREATE TABLE [Credits] (
     )
 )
 
---- РЎРѕР·РґР°РµРј С‚Р°Р±Р»РёС†Сѓ СЃ РєР»РёРµРЅС‚Р°РјРё
--- Сѓ РєР»РёРµРЅС‚Р° РјРѕР¶РµС‚ Р±С‹С‚СЊ РЅРµСЃРєРѕР»СЊРєРѕ РєСЂРµРґРёС‚РѕРІ
+--- Создаем таблицу с клиентами
+-- у клиента может быть несколько кредитов
 CREATE TABLE [Clients] (
     [Client_ID] int  NOT NULL  identity,
     [Client_Name] nvarchar(200)  NOT NULL ,
@@ -44,8 +44,8 @@ CREATE TABLE [Clients] (
     )
 )
 
---- РЎРѕР·РґР°РµРј С‚Р°Р±Р»РёС†Сѓ СЃ РєР»РёРµРЅС‚Р°РјРё-Р±Р°РЅРєСЂРѕС‚Р°РјРё
--- РЅРµРєРѕС‚РѕСЂС‹Рµ РєР»РёРµРЅС‚С‹ РјРѕРіСѓС‚ Р±С‹С‚СЊ Р±Р°РЅРєСЂРѕС‚Р°РјРё
+--- Создаем таблицу с клиентами-банкротами
+-- некоторые клиенты могут быть банкротами
 CREATE TABLE [Clients_bankrupt] (
     [Client_ID] int  NOT NULL ,
     [Date_of_bankrupt] date  NOT NULL ,
@@ -54,9 +54,9 @@ CREATE TABLE [Clients_bankrupt] (
     )
 )
 
---- РЎРѕР·РґР°РµРј С‚Р°Р±Р»РёС†Сѓ СЃ РїСЂРѕРґСѓРєС‚Р°РјРё
--- Сѓ РєСЂРµРґРёС‚Р° РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕРґРёРЅ РїСЂРѕРґСѓРєС‚
--- РЅРѕ РІ РїСЂРѕРґСѓРєС‚Рµ РјРЅРѕРіРѕ РєСЂРµРґРёС‚РѕРІ
+--- Создаем таблицу с продуктами
+-- у кредита может быть один продукт
+-- но в продукте много кредитов
 CREATE TABLE [Products] (
     [Product_ID] int  NOT NULL identity ,
     [Product] nvarchar(200)  NOT NULL ,
@@ -69,8 +69,8 @@ CREATE TABLE [Products] (
     )
 )
 
---- РЎРѕР·РґР°РµРј С‚Р°Р±Р»РёС†Сѓ СЃ РїР»Р°С‚РµР¶Р°РјРё
--- Сѓ РєСЂРµРґРёС‚Р° РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРЅРѕРіРѕ РїР»Р°С‚РµР¶РµР№ РїРѕ РєСЂРµРґРёС‚Р°Рј
+--- Создаем таблицу с платежами
+-- у кредита может быть много платежей по кредитам
 CREATE TABLE [Payments] (
     [Fakt_ID] int  NOT NULL identity ,
     [Loan_ID] int  NOT NULL ,
@@ -83,8 +83,8 @@ CREATE TABLE [Payments] (
     )
 )
 
---- РЎРѕР·РґР°РµРј С‚Р°Р±Р»РёС†Сѓ СЃ РїСЂРѕСЃСЂРѕС‡РµРЅРЅРѕР№ Р·Р°РґРѕР»Р¶РµРЅРЅРѕСЃС‚СЊСЋ
--- Сѓ РєСЂРµРґРёС‚Р° РјРѕРіСѓС‚ Р±С‹С‚СЊ РїСЂРѕСЃСЂРѕС‡РµРЅРЅС‹Рµ Р·Р°РґРѕР»Р¶РµРЅРЅРѕСЃС‚Рё
+--- Создаем таблицу с просроченной задолженностью
+-- у кредита могут быть просроченные задолженности
 CREATE TABLE [Credits_delay] (
     [Loan_ID] int  NOT NULL ,
     [Date_begin] date  NOT NULL ,
@@ -92,8 +92,8 @@ CREATE TABLE [Credits_delay] (
 	CONSTRAINT [PK_Credits_delay] PRIMARY KEY ([Loan_ID],[Date_begin],[Date_end])
 )
 
---- РЎРѕР·РґР°РµРј С‚Р°Р±Р»РёС†Сѓ СЃ СЂРµСЃС‚СЂСѓРєС‚СѓСЂРёР·Р°С†РёСЏРјРё РїРѕ РєСЂРµРґРёС‚Р°Рј
--- Сѓ РєСЂРµРґРёС‚Р° РјРѕР¶РµС‚ Р±С‹С‚СЊ РЅРµСЃРєРѕР»СЊРєРѕ СЂРµСЃС‚СЂСѓРєС‚СѓСЂРёР·Р°С†РёР№ РёР»Рё РЅРµ Р±С‹С‚СЊ
+--- Создаем таблицу с реструктуризациями по кредитам
+-- у кредита может быть несколько реструктуризаций или не быть
 CREATE TABLE [Credits_restructs] (
     [Loan_ID] int  NOT NULL ,
     [Date_rest] date  NOT NULL ,
@@ -101,7 +101,7 @@ CREATE TABLE [Credits_restructs] (
 	CONSTRAINT [PK_Credits_restructs] PRIMARY KEY ([Loan_ID],[Date_rest],[Rest_type])
 )
 
---- Р”РѕР±Р°РІР»СЏРµРј РѕРіСЂР°РЅРёС‡РµРЅРёСЏ РїРѕ С‚Р°Р±Р»РёС†Р°Рј
+--- Добавляем ограничения по таблицам
 ALTER TABLE [Credits] WITH CHECK ADD CONSTRAINT [FK_Credits_Client_ID] FOREIGN KEY([Client_ID])
 REFERENCES [Clients] ([Client_ID])
 
@@ -136,8 +136,15 @@ ALTER TABLE [Credits]
 ADD CONSTRAINT constr_Issue_Date
 CHECK ([Issue_Date] >='2012-01-01');
 
---- РЎРѕР·РґР°РµРј РёРЅРґРµРєСЃС‹
+--- Создаем индексы
 create index idx_prod on [Credits]  ([Product_ID]);
+
+/*
 create COLUMNSTORE index idx_pay on [Payments] ([Oper_date]);
 create COLUMNSTORE index idx_delay on [Credits_delay] ([Loan_ID]);
 create index idx_rest on [Credits_restructs] ([Date_rest],[Loan_ID]);
+
+drop index  idx_pay on [Payments] ;
+drop index  idx_delay on [Credits_delay] ;
+drop index  idx_rest on [Credits_restructs]  ;
+*/
